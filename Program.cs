@@ -1,21 +1,35 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using WebApiMySQL.Data;
-using WebApiMySQL.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        name: "_AllowedOrigins",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5533");
+        }
+       );
+});
 // MySQL connection string
+//var serverVersion = new MySqlServerVersion(new Version(8, 0, 29));
+//var connString = builder.Configuration.GetConnectionString("WebApiMySQLContext");
+//builder.Services.AddDbContext<WebApiMySQLContext>(options =>
+//    options
+//        .UseMySql(connString, serverVersion)
+//        .LogTo(Console.WriteLine, LogLevel.Information)
+//        .EnableSensitiveDataLogging()
+//        .EnableDetailedErrors()
+//        );
 
-var serverVersion = new MySqlServerVersion(new Version(8, 0, 29));
-var connString = builder.Configuration.GetConnectionString("WebApiMySQLContext");
+// SqLite Connection
+var connectionString = new SqliteConnectionStringBuilder { DataSource = "myDB.db" };
+var connection = new SqliteConnection(connectionString.ToString());
+builder.Services.AddDbContext<WebApiMySQLContext>(options => options.UseSqlite(connection));
 
-builder.Services.AddDbContext<WebApiMySQLContext>(options =>
-    options.UseMySql(connString, serverVersion)
-            .LogTo(Console.WriteLine, LogLevel.Information)
-            .EnableSensitiveDataLogging()
-            .EnableDetailedErrors()
-            );
 
 // Add services to the container.
 
@@ -33,12 +47,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+app.UseCors("_AllowedOrigins");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.MapVideoCollectionEndpoints();
 
 app.Run();
