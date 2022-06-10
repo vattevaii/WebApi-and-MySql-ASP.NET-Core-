@@ -23,6 +23,8 @@ namespace WebApiMySQL.Data
             builder.Entity<Friend>().ToTable("friend");
             builder.Entity<VideoCollection>().ToTable("video_collection");
 
+            // Add items to Friends and VideoCollection
+
         }
         
         public DbSet<Friend> Friends { get; set; } = null!;

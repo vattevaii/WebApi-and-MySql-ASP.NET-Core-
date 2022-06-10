@@ -11,15 +11,20 @@ public class VideoCollection
     public int Id { get; set; }
     [Column("movie_title")]
     [StringLength(45, MinimumLength = 1)]
+    [Required]
     public string MovieTitle { get; set; } = string.Empty;
     [Column("year_released")]
     [Range(1600, 2100)]
+    [Required]
     public int? YearReleased { get; set; }
     [Range(0.0, 10.0)]
+    [Required]
     public float Rating { get; set; }
     [StringLength(45, MinimumLength = 3)]
+    [Required]
     public string Subject { get; set; } = string.Empty;
-    public int Length { get; set; }
+    [Required]
+    public float Length { get; set; }
     public string? Note { get; set; }
     [Column("friend_id")]
     [Required]
