@@ -30,6 +30,7 @@ namespace WebApiMySQL.Controllers
                 return NotFound();
             }
             return await _context.Friends
+                .Include(c => c.videoCollections)
                 .ToListAsync();
         }
 
@@ -104,16 +105,25 @@ namespace WebApiMySQL.Controllers
         // POST: api/Friends
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Friend>> PostFriend(Friend friend)
+        public async Task<ActionResult<Friend>> PostFriend(FriendDTO friend)
         {
-          if (_context.Friends == null)
-          {
-              return Problem("Entity set 'WebApiMySQLContext.Friends'  is null.");
-          }
-            _context.Friends.Add(friend);
+            if (_context.Friends == null)
+            {
+                return Problem("Entity set 'WebApiMySQLContext.Friends'  is null.");
+            }
+            Friend f = new Friend()
+            {
+                FirstName = friend.FirstName,
+                LastName = friend.LastName,
+                HomePhone = friend.HomePhone,
+                PostCode = friend.PostCode,
+                Address = friend.Address,
+                City = friend.City,
+                State = friend.State
+            };
+            _context.Friends.Add(f);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetFriend", new { id = friend.Id }, friend);
+            return CreatedAtAction("GetFriend", new { id = f.Id }, f);
         }
 
         // DELETE: api/Friends/5

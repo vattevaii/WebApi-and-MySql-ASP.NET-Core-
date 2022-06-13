@@ -29,7 +29,8 @@ namespace WebApiMySQL.Controllers
           {
               return NotFound();
           }
-            return await _context.Videos.Include(c => c.Friend)
+            return await _context.Videos
+                .Include(c => c.Friend)
                 .ToListAsync();
         }
 
@@ -42,7 +43,8 @@ namespace WebApiMySQL.Controllers
               return NotFound();
           }
             var videoCollection = await _context.Videos
-                .Include(c=>c.Friend).FirstOrDefaultAsync(i=> i.Id == id);
+                //.Include(c=>c.Friend)
+                .FirstOrDefaultAsync(i=> i.Id == id);
 
             if (videoCollection == null)
             {
@@ -86,16 +88,28 @@ namespace WebApiMySQL.Controllers
         // POST: api/Videos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<VideoCollection>> PostVideoCollection(VideoCollection videoCollection)
+        public async Task<ActionResult<VideoCollection>> PostVideoCollection(VideoCollectionDTO videoCollection)
         {
           if (_context.Videos == null)
           {
               return Problem("Entity set 'WebApiMySQLContext.Videos'  is null.");
           }
-            _context.Videos.Add(videoCollection);
+            // map videoCollection to VideoCollection
+            VideoCollection v = new VideoCollection()
+            {
+                // 
+                MovieTitle = videoCollection.MovieTitle,
+                Rating = videoCollection.Rating,
+                Note = videoCollection.Note,
+                Length = videoCollection.Length,
+                Subject = videoCollection.Subject,
+                YearReleased = videoCollection.YearReleased,
+                FriendId = videoCollection.FriendId
+            };
+            _context.Videos.Add(v);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetVideoCollection", new { id = videoCollection.Id }, videoCollection);
+            return CreatedAtAction("GetVideoCollection", new { id = v.Id }, v);
         }
 
         // DELETE: api/Videos/5
